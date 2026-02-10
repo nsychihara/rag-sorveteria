@@ -28,4 +28,4 @@ for p in produtos:
 
 colecao_produtos.insert_many(docs)
 
-print("✅ Produtos salvos no Mongo com embeddings")
+print("Produtos salvos no Mongo com embeddings")

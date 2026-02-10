@@ -22,4 +22,4 @@ for produto in produtos:
 
     print(f"Embedding gerado: {produto['nome']}")
 
-print("✅ Todos os embeddings foram gerados!")
+print("Todos os embeddings foram gerados!")

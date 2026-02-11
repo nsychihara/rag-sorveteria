@@ -1,20 +1,24 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.views.decorators.csrf import csrf_exempt
 from rag.chat import responder
 
-
+@csrf_exempt
 @api_view(["POST"])
 def chat(request):
-    pergunta = request.data.get("pergunta")
+    message = request.data.get("message")
 
-    if not pergunta:
+    if not message:
         return Response(
-            {"erro": "Campo 'pergunta' é obrigatório."},
+            {"error": "Field 'message' is required."},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    resposta = responder(pergunta)
+    resposta = responder(message)
 
-    return Response({"resposta": resposta})
+    return Response({
+        "response": resposta,
+        "produtos_relacionados": []
+    })
+

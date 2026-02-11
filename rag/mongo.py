@@ -7,3 +7,4 @@ client = MongoClient(MONGO_URI)
 
 db = client["rag_sorveteria"]
 colecao_produtos = db["produtos"]
+ 

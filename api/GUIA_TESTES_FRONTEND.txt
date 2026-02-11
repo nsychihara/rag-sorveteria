@@ -1,0 +1,307 @@
+================================================================================
+GUIA COMPLETO: TESTAR API DO CHATBOT SEM test_endpoint.py
+================================================================================
+
+OPÇÃO 1: CONSOLE DO NAVEGADOR (Mais Rápido)
+================================================================================
+
+1. Inicie o servidor Django:
+   cd /home/prever03/Downloads/sorvelinux/api
+   source venv/bin/activate
+   python manage.py runserver
+
+2. Abra qualquer página no navegador (pode ser google.com)
+
+3. Abra o Console do Desenvolvedor:
+   - Chrome/Edge: F12 ou Ctrl+Shift+J
+   - Firefox: F12 ou Ctrl+Shift+K
+
+4. Cole este código no console:
+
+   fetch('http://localhost:8000/api/chatbot/', {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+     },
+     body: JSON.stringify({
+       message: 'Quais sabores de sorvete vocês têm?'
+     })
+   })
+   .then(res => res.json())
+   .then(data => {
+     console.log('Resposta do chatbot:', data.response);
+     console.log('Produtos relacionados:', data.produtos_relacionados);
+   })
+   .catch(err => console.error('Erro:', err));
+
+5. Veja a resposta no console!
+
+
+================================================================================
+OPÇÃO 2: FRONTEND REACT (Integração Real)
+================================================================================
+
+PASSO 1: Use o arquivo criado /frontend/src/lib/api.ts
+
+PASSO 2: No componente ChatContainer ou ChatInput, importe:
+   import { sendMessageToRAG } from '@/lib/api';
+
+PASSO 3: Substitua a função que gera resposta:
+   // ANTES (com respostas hardcoded):
+   import { getBotResponse } from '@/lib/chatbot';
+   const botResponse = getBotResponse(userMessage);
+
+   // DEPOIS (com API RAG):
+   import { sendMessageToRAG } from '@/lib/api';
+   const response = await sendMessageToRAG(userMessage);
+   const botResponse = response.response;
+
+PASSO 4: Inicie o frontend:
+   cd /home/prever03/Downloads/sorvelinux/frontend
+   npm run dev
+
+PASSO 5: Abra http://localhost:5173 e teste o chat!
+
+
+================================================================================
+OPÇÃO 3: EXTENSÃO DO NAVEGADOR (Thunder Client, Postman, etc)
+================================================================================
+
+THUNDER CLIENT (VS Code):
+1. Instale extensão "Thunder Client" no VS Code
+2. Clique no ícone do raio na barra lateral
+3. New Request → POST
+4. URL: http://localhost:8000/api/chatbot/
+5. Headers: Content-Type: application/json
+6. Body (JSON):
+   {
+     "message": "Olá, quais sabores vocês têm?"
+   }
+7. Send!
+
+POSTMAN (Aplicativo):
+1. Abra Postman
+2. New → HTTP Request
+3. Método: POST
+4. URL: http://localhost:8000/api/chatbot/
+5. Headers → Add: Content-Type = application/json
+6. Body → raw → JSON:
+   {
+     "message": "Quais são os preços?"
+   }
+7. Send
+
+
+================================================================================
+OPÇÃO 4: HTML SIMPLES (Página de Teste)
+================================================================================
+
+Crie um arquivo teste-chatbot.html na pasta do projeto:
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Chatbot RAG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        #chat {
+            border: 1px solid #ddd;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user {
+            background: #007bff;
+            color: white;
+            text-align: right;
+        }
+        .bot {
+            background: #e9ecef;
+            color: #333;
+        }
+        input {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍦 Teste do Chatbot RAG</h1>
+    <div id="chat"></div>
+    <input type="text" id="userInput" placeholder="Digite sua mensagem...">
+    <button onclick="sendMessage()" id="sendBtn">Enviar</button>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api/chatbot/';
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        async function sendMessage() {
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Mostra mensagem do usuário
+            addMessage(message, 'user');
+            input.value = '';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                // Mostra resposta do bot
+                addMessage(data.response, 'bot');
+
+                // Mostra produtos relacionados (opcional)
+                if (data.produtos_relacionados && data.produtos_relacionados.length > 0) {
+                    const produtos = data.produtos_relacionados
+                        .map(p => `• ${p.nome} (${(p.score * 100).toFixed(0)}%)`)
+                        .join('\n');
+                    addMessage('Produtos relacionados:\n' + produtos, 'bot');
+                }
+            } catch (error) {
+                addMessage('Erro ao enviar mensagem: ' + error.message, 'bot');
+            } finally {
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        function addMessage(text, type) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = text;
+            div.style.whiteSpace = 'pre-wrap';
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Mensagem inicial
+        addMessage('Olá! Estou conectado à API RAG. Pergunte algo!', 'bot');
+    </script>
+</body>
+</html>
+
+Abra este arquivo no navegador: file:///caminho/teste-chatbot.html
+
+
+================================================================================
+OPÇÃO 5: CURL NO TERMINAL (Linux/Mac)
+================================================================================
+
+curl -X POST http://localhost:8000/api/chatbot/ \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Quais sabores vocês têm?"}'
+
+OU com formatação JSON bonita:
+
+curl -X POST http://localhost:8000/api/chatbot/ \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Olá"}' | jq .
+
+
+================================================================================
+CHECKLIST ANTES DE TESTAR
+================================================================================
+
+✅ Servidor Django rodando: python manage.py runserver
+✅ Arquivo .env configurado com GEMINI_API_KEY e MONGO_URI
+✅ MongoDB rodando e populado com produtos
+✅ Embeddings calculados (seed_embeddings.py executado)
+✅ CORS configurado no settings.py (já está!)
+
+
+================================================================================
+VERIFICAR SE ESTÁ FUNCIONANDO
+================================================================================
+
+1. Acesse: http://localhost:8000/api/chatbot/
+   Deve retornar: 405 Method Not Allowed (correto! só aceita POST)
+
+2. Teste no console do navegador (OPÇÃO 1 acima)
+
+3. Verifique os logs do Django no terminal
+   Deve mostrar: "POST /api/chatbot/ HTTP/1.1" 200
+
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ERRO: CORS blocked
+→ Verifique se frontend está em localhost:5173
+→ Adicione a porta correta em CORS_ALLOWED_ORIGINS no settings.py
+
+ERRO: Connection refused
+→ Servidor Django não está rodando
+→ Execute: python manage.py runserver
+
+ERRO: 400 Bad Request
+→ Verifique se está enviando {"message": "texto"}
+→ Verifique header Content-Type: application/json
+
+ERRO: Timeout ou demora muito
+→ Primeira requisição demora mais (carrega modelo)
+→ Próximas são mais rápidas
+→ Verifique se MongoDB está acessível
+
+
+================================================================================
+RESUMO RÁPIDO
+================================================================================
+
+MAIS FÁCIL: Console do navegador (OPÇÃO 1)
+MAIS REAL: Integrar no frontend React (OPÇÃO 2)
+MAIS VISUAL: HTML de teste (OPÇÃO 4)
+MAIS PROFISSIONAL: Postman/Thunder Client (OPÇÃO 3)
+
+
+================================================================================
+PRÓXIMO PASSO RECOMENDADO
+================================================================================
+
+1. Teste primeiro no console (OPÇÃO 1) para garantir que funciona
+2. Depois integre no frontend React (OPÇÃO 2) para uso real
+3. Use o HTML de teste (OPÇÃO 4) se quiser uma interface visual rápida
+
+Qualquer dúvida, consulte a documentação em:
+- DOCUMENTACAO_ENDPOINT.txt
+- EXEMPLOS_PAYLOADS.txt

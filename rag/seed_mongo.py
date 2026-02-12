@@ -19,6 +19,18 @@ produtos = [
     {
         "nome": "Milkshake de Baunilha",
         "descricao": "Milkshake gelado de baunilha com calda de caramelo"
+    },
+    {
+        "nome": "Milkshake de Nuttela",
+        "descricao": "Milkshake gelado de Nuttela, super cremoso com o poderoso sabor de avelãs frescas"
+    },
+    {
+        "nome": "Danoninho Sorvetinho",
+        "descricao": "O clássico danoninho sorvetinho, agora com sua versão melhorada, com sabor de infância"
+    },
+    {
+        "nome": "Sorvete de Flocos",
+        "descricao": "Um dos sabores mais clássicos de sorvete, com pedaços de chocolate meio amargo"
     }
 ]
 

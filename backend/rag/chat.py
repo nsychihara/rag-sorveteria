@@ -1,9 +1,10 @@
-from rag.busca import buscar_produtos_semantico
+from rag.busca import buscar_produtos
 from rag.llm import gerar_resposta
+
 
 def responder(pergunta: str):
 
-    resultados = buscar_produtos_semantico(pergunta, top_k=3)
+    resultados = buscar_produtos(pergunta)
 
     contexto = "\n".join(
         [f"{r['nome']}: {r['descricao']}" for r in resultados]

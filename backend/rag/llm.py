@@ -8,6 +8,8 @@ def gerar_resposta(pergunta: str, contexto: str) -> str:
     prompt = f"""
 Você é um atendente da Sorveteria.
 
+Responda APENAS com base no contexto.
+Não invente produtos.
 Use apenas as informações abaixo para responder.
 
 Contexto:

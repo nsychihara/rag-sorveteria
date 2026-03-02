@@ -1,6 +1,6 @@
 # rag-sorveteria
 
-Projeto de estudo/demo de **RAG (Retrieval-Augmented Generation)** aplicado a uma “sorveteria”: um backend em **Python/Django** e um frontend em **TypeScript**.
+Projeto de estudo/demo de **RAG (Retrieval-Augmented Generation)** aplicado a uma “sorveteria”: um backend em **Python/Django** e um frontend com **React TSX**.
 
 > Estrutura principal do repositório: `frontend/`, `rag/`, `rag_sorveteria/`, `manage.py`, `requirements.txt` e `package-lock.json`. :contentReference[oaicite:1]{index=1}
 
